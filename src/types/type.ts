@@ -1,6 +1,5 @@
- 
 import { JwtPayload, SignOptions } from "jsonwebtoken";
-import { Response } from "express";
+import { Response, Request } from "express";
 
 export type TUser = {
   id: string;
@@ -14,3 +13,10 @@ export type TCookieSetter = {
   generateToken: (payload: JwtPayload, secret: string, options: SignOptions) => Promise<string>;
   res: Response;
 };
+
+export interface AuthRequest extends Request {
+  auth: {
+    sub: string;
+    email: string;
+  };
+}
