@@ -6,6 +6,7 @@ import createHttpError from "http-errors";
 import { healthSchema } from "../resolvers/resolvers";
 import { HealthStatus } from "@prisma/client";
 import { getRedisKeyValue, setRedisKeyValue } from "../utils/redis-helper";
+import Queue from "../lib/queue";
 
 export class HealthController {
   constructor() {}
@@ -33,7 +34,11 @@ export class HealthController {
 
       // TODO: Send an event to rabbitMQ after record is created and store in the log file and broadcast to other users via websocket
       await setRedisKeyValue(record.id, JSON.stringify(record), 300);
-      logger.info(record);
+      await Queue.publish("health_updates", {
+        message: "New record created",
+        record,
+      });
+
       res.json({ message: "Health record created" });
     } catch (error) {
       logger.error("Error while creating health record");
@@ -66,7 +71,7 @@ export class HealthController {
 
       const { name, age, status } = parsedBody.data;
 
-      await prisma.healthRecord.update({
+      const record = await prisma.healthRecord.update({
         where: {
           id,
         },
@@ -78,9 +83,10 @@ export class HealthController {
       });
 
       // TODO: send a notification via websocket and show live update via SSE.
-      // TODO: trigger an event for logging (RMQ)
-
-      logger.info({ recordId: id, message: "Health record updated successfully" });
+      await Queue.publish("health_updates", {
+        message: "Record updated",
+        record,
+      });
       res.json({
         message: "Health record updated",
       });
