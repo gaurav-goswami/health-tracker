@@ -14,11 +14,12 @@ export default tseslint.config(
             },
         },
         rules: {
-            "no-console": "error",
-            "no-var": "error",
+            'dot-notation': 'error',
+            'no-console': 'error',
+            'no-unused-vars': 'off',
         }
     },
     {
-        ignores: ["dist", "node_modules", "eslint.config.mjs"],
+        ignores: ["dist", "node_modules", "eslint.config.mjs", "prisma"],
     }
 );
