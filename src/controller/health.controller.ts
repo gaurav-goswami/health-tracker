@@ -5,6 +5,7 @@ import prisma from "../config/db";
 import createHttpError from "http-errors";
 import { healthSchema } from "../resolvers/resolvers";
 import { HealthStatus } from "@prisma/client";
+import { getRedisKeyValue, setRedisKeyValue } from "../utils/redis-helper";
 
 export class HealthController {
   constructor() {}
@@ -31,6 +32,7 @@ export class HealthController {
       });
 
       // TODO: Send an event to rabbitMQ after record is created and store in the log file and broadcast to other users via websocket
+      await setRedisKeyValue(record.id, JSON.stringify(record), 300);
       logger.info(record);
       res.json({ message: "Health record created" });
     } catch (error) {
@@ -122,6 +124,12 @@ export class HealthController {
     try {
       await this.findUser(req);
       // TODO: fetch from redis first, if not present inside redis get from DB (store again in redis);
+      const cachedRecord = await getRedisKeyValue(id);
+
+      if (cachedRecord) {
+        return res.json(JSON.parse(cachedRecord));
+      }
+
       const record = await prisma.healthRecord.findFirst({
         where: {
           id,
@@ -133,6 +141,7 @@ export class HealthController {
         return next(error);
       }
 
+      await setRedisKeyValue(record.id, JSON.stringify(record), 300);
       res.json({ record });
     } catch (error) {
       logger.error("Error while getting a single record");
