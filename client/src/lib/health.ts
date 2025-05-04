@@ -18,7 +18,7 @@ export const createHealthRecord = async (data: z.infer<typeof formSchema>) => {
             }
         );
         console.log("response from create  health record", response.data);
-        return response.data;
+        return response.data.record;
     } catch (error: any) {
         console.log("Error", error);
         toast.error(error.response?.data?.errors[0].message || "Login failed. Please try again.");

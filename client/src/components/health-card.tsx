@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
-import { deleteHealthRecord } from "@/lib/health";
+import { deleteHealthRecord, updateHealthRecord } from "@/lib/health";
 import { toast } from "sonner";
 import PatientDialogForm from "./create-health-record";
+import { useHealthStore } from "@/lib/store"; // Assuming you have a health store for state management
 
 type Status = "HEALTHY" | "SICK" | "CRITICAL";
 
@@ -13,9 +15,12 @@ export interface HealthCardProps {
     status: Status;
     id: string;
     age: number;
+    updated_at?: string;
 }
 
-const HealthCard = ({ name, status, id, age }: HealthCardProps) => {
+const HealthCard = ({ name, status, id, age, updated_at }: HealthCardProps) => {
+    const { removeRecord } = useHealthStore();
+
     const getStatusStyle = (status: Status) => {
         switch (status) {
             case "HEALTHY":
@@ -33,8 +38,18 @@ const HealthCard = ({ name, status, id, age }: HealthCardProps) => {
         try {
             await deleteHealthRecord(id);
             toast("Record deleted successfully");
+            removeRecord(id); 
         } catch (error) {
             console.error("Delete error:", error);
+        }
+    };
+
+    const handleUpdate = async (updatedRecord: HealthCardProps) => {
+        try {
+            await updateHealthRecord(id, updatedRecord);
+            toast("Record updated successfully");
+        } catch (error) {
+            console.error("Update error:", error);
         }
     };
 
@@ -49,7 +64,7 @@ const HealthCard = ({ name, status, id, age }: HealthCardProps) => {
 
             <div className="text-sm text-gray-600">
                 <p><span className="font-medium">Age:</span> {age} years</p>
-                <p className="text-gray-500">Patient Status Overview</p>
+                <p><span className="font-medium">Last Updated:</span> {new Date(updated_at as string).toLocaleString()}</p>
             </div>
 
             <div className="flex gap-3 mt-2">
@@ -62,6 +77,8 @@ const HealthCard = ({ name, status, id, age }: HealthCardProps) => {
                             Edit
                         </button>
                     }
+                    // @ts-ignore
+                    onSubmit={handleUpdate}
                 />
                 <button
                     onClick={handleDelete}

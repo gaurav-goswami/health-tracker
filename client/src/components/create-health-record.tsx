@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "./ui/button";
+import { useHealthStore } from "@/lib/store"; // Import the store
 
 type FormSchema = z.infer<typeof formSchema>;
 
@@ -22,6 +23,7 @@ interface PatientDialogFormProps {
 
 const PatientDialogForm = ({ triggerButton, defaultValues, isEditMode = false }: PatientDialogFormProps) => {
     const [open, setOpen] = useState(false);
+    const { addRecord } = useHealthStore();
 
     const {
         register,
@@ -43,10 +45,12 @@ const PatientDialogForm = ({ triggerButton, defaultValues, isEditMode = false }:
     const onSubmit = async (data: FormSchema) => {
         try {
             if (isEditMode && defaultValues?.id) {
+                // If in edit mode, update the record and not add
                 await updateHealthRecord(defaultValues.id, data);
                 toast("Health record updated");
             } else {
-                await createHealthRecord(data);
+                const record = await createHealthRecord(data);
+                addRecord(record);
                 toast("Health record created");
             }
         } catch (error) {
