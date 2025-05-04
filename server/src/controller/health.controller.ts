@@ -1,12 +1,13 @@
-import { NextFunction, Response } from "express";
-import logger from "../config/logger";
-import { AuthRequest } from "../types/type";
-import prisma from "../config/db";
-import createHttpError from "http-errors";
-import { healthSchema } from "../resolvers/resolvers";
 import { HealthStatus } from "@prisma/client";
-import { getRedisKeyValue, setRedisKeyValue } from "../utils/redis-helper";
+import { NextFunction, Response } from "express";
+import createHttpError from "http-errors";
+import prisma from "../config/db";
+import logger from "../config/logger";
 import Queue from "../lib/queue";
+import { healthSchema } from "../resolvers/resolvers";
+import { broadcastHealthUpdates } from "../routes/sse.route";
+import { AuthRequest } from "../types/type";
+import { getRedisKeyValue, setRedisKeyValue } from "../utils/redis-helper";
 
 export class HealthController {
   constructor() { }
@@ -32,8 +33,13 @@ export class HealthController {
         },
       });
 
-      // TODO: Send an event to rabbitMQ after record is created and store in the log file and broadcast to other users via websocket
       await setRedisKeyValue(record.id, JSON.stringify(record), 300);
+
+      broadcastHealthUpdates({
+        type: "CREATED",
+        record,
+        by: user
+      })
       await Queue.publish("health_updates", {
         message: "New record created",
         record,
@@ -44,7 +50,7 @@ export class HealthController {
         },
       });
 
-      res.json({ message: "Health record created" });
+      res.json({ message: "Health record created", record });
     } catch (error) {
       logger.error("Error while creating health record");
       return next(error);
@@ -87,7 +93,11 @@ export class HealthController {
         },
       });
 
-      // TODO: send a notification via websocket and show live update via SSE.
+      broadcastHealthUpdates({
+        type: "UPDATED",
+        record,
+        by: user
+      })
       await Queue.publish("health_updates", {
         message: "Record updated",
         type: "UPDATED",

@@ -13,8 +13,10 @@ interface HealthStore {
     addRecord: (record: HealthRecord) => void;
     setRecords: (records: HealthRecord[]) => void;
     removeRecord: (id: string) => void;
+    upsertRecord: (record: HealthRecord) => void;
     getRecords: () => HealthRecord[];
 }
+
 
 export const useHealthStore = create<HealthStore>((set, get) => ({
     records: [],
@@ -30,5 +32,16 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
         set((state) => ({
             records: state.records.filter((record) => record.id !== id),
         })),
+        upsertRecord: (record) =>
+            set((state) => {
+                const index = state.records.findIndex((r) => r.id === record.id);
+                if (index !== -1) {
+                    const updatedRecords = [...state.records];
+                    updatedRecords[index] = record;
+                    return { records: updatedRecords };
+                } else {
+                    return { records: [...state.records, record] };
+                }
+            }),        
     getRecords: () => get().records,
 }));

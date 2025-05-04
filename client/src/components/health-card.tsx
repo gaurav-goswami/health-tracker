@@ -6,16 +6,16 @@ import { Pencil, Trash2 } from "lucide-react";
 import { deleteHealthRecord, updateHealthRecord } from "@/lib/health";
 import { toast } from "sonner";
 import PatientDialogForm from "./create-health-record";
-import { useHealthStore } from "@/lib/store"; // Assuming you have a health store for state management
+import { useHealthStore } from "@/lib/store";
 
-type Status = "HEALTHY" | "SICK" | "CRITICAL";
+export type Status = "HEALTHY" | "SICK" | "CRITICAL";
 
 export interface HealthCardProps {
     name: string;
     status: Status;
     id: string;
     age: number;
-    updated_at?: string;
+    updated_at: string;
 }
 
 const HealthCard = ({ name, status, id, age, updated_at }: HealthCardProps) => {
@@ -38,7 +38,7 @@ const HealthCard = ({ name, status, id, age, updated_at }: HealthCardProps) => {
         try {
             await deleteHealthRecord(id);
             toast("Record deleted successfully");
-            removeRecord(id); 
+            removeRecord(id);
         } catch (error) {
             console.error("Delete error:", error);
         }
@@ -53,6 +53,7 @@ const HealthCard = ({ name, status, id, age, updated_at }: HealthCardProps) => {
         }
     };
 
+    console.log("updated at", updated_at);
     return (
         <div className="w-full max-w-sm bg-white p-6 rounded-xl border shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between">

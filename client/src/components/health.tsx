@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
-import { useEffect, useState } from "react";
-import HealthCard, { HealthCardProps } from "./health-card";
 import { getAllHealthRecords } from "@/lib/health";
-import { Loader2 } from "lucide-react";
 import { useHealthStore } from "@/lib/store"; // Import your store
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import HealthCard, { Status } from "./health-card";
 
 const Health = () => {
     const [loading, setLoading] = useState<boolean>(true);
@@ -37,16 +37,18 @@ const Health = () => {
                 </div>
             ) : records.length > 0 ? (
                 <div className="flex gap-3 justify-start flex-wrap">
-                    {/* @ts-ignore */}
-                    {records.map((rec: HealthCardProps) => (
-                        <HealthCard
+                    {
+                        records.map(rec => {
+                            return <HealthCard
                             key={rec.id}
                             id={rec.id}
                             name={rec.name}
                             age={rec.age}
-                            status={rec.status}
+                            status={rec.status as Status}
+                            updated_at={rec.updated_at}
                         />
-                    ))}
+                        })
+                    }
                 </div>
             ) : (
                 <span>No health records</span>
