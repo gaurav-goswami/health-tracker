@@ -3,7 +3,7 @@
 import amqplib, { ConsumeMessage } from "amqplib";
 import { Channel } from "amqplib";
 import logger from "../config/logger";
-import { io, userSocketMap } from "./socket";
+import { io, userSocketMap } from "../app";
 
 class Queue {
   private static instance: Queue;
@@ -11,7 +11,7 @@ class Queue {
   private channel: amqplib.Channel | null = null;
   private readonly url = process.env.QUEUE_URL as string;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): Queue {
     if (!Queue.instance) {

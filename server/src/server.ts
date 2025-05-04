@@ -1,4 +1,4 @@
-import app from "./app";
+import { appServer } from "./app";
 import { CONNECT_DB } from "./config/db";
 import logger from "./config/logger";
 import Queue from "./lib/queue";
@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
-    app.listen(PORT);
+    appServer.listen(PORT);
     logger.info(`Server is running on port ${PORT}`);
 
     await CONNECT_DB();

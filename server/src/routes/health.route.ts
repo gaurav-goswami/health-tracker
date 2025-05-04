@@ -34,6 +34,14 @@ healthRouter.delete(
   }
 );
 
+healthRouter.get("", authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await healthController.getHealthRecord(req as AuthRequest, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 healthRouter.get("/:id", authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     await healthController.getSingleRecord(req as AuthRequest, res, next);

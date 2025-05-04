@@ -1,9 +1,7 @@
+import HealthWrapper from "@/components/health-wrapper";
+
 const Page = () => {
-    return (
-        <div>
-            This is dashboard page
-        </div>
-    )
+    return <HealthWrapper />;
 };
 
 export default Page;

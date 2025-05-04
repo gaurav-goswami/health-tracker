@@ -7,11 +7,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { loginUser } from "@/lib/auth";
+import { loginSchema } from "@/resolvers/resolver";
 
-const loginSchema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-});
 
 type LoginSchema = z.infer<typeof loginSchema>;
 

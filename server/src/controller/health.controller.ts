@@ -9,7 +9,7 @@ import { getRedisKeyValue, setRedisKeyValue } from "../utils/redis-helper";
 import Queue from "../lib/queue";
 
 export class HealthController {
-  constructor() {}
+  constructor() { }
 
   async createRecord(req: AuthRequest, res: Response, next: NextFunction) {
     const parsedBody = healthSchema.safeParse(req.body);
@@ -161,6 +161,27 @@ export class HealthController {
       res.json({ record });
     } catch (error) {
       logger.error("Error while getting a single record");
+      return next(error);
+    }
+  }
+
+  async getHealthRecord(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      await this.findUser(req);
+
+      // TODO: Add pagination
+      const healthRecords = await prisma.healthRecord.findMany({});
+
+      if (!healthRecords.length) {
+        return res.json({ message: "No health records available", records: [] });
+      };
+
+      return res.json({
+        records: healthRecords
+      })
+
+    } catch (error) {
+      logger.error("Error while getting health records");
       return next(error);
     }
   }

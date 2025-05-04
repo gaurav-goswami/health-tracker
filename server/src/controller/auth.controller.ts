@@ -7,7 +7,7 @@ import createHttpError from "http-errors";
 import { cookieSetter } from "../utils/cookieHelper";
 
 export class AuthController {
-  constructor(private token_and_credentials_service: TokenAndCredentialsService) {}
+  constructor(private token_and_credentials_service: TokenAndCredentialsService) { }
 
   async login(req: Request, res: Response, next: NextFunction) {
     const parsedBody = loginSchema.safeParse(req.body);
@@ -43,6 +43,7 @@ export class AuthController {
 
       return res.json({
         message: "Login successful",
+        user
       });
     } catch (error) {
       logger.error("Error while login", error);
