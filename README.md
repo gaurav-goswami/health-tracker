@@ -265,4 +265,8 @@ curl -X DELETE http://localhost:8080/api/v1/health/1 \
 
 6. **Real-time Updates with SSE 🌐:**
    - **Server-Sent Events (SSE)** are used to send real-time updates about health records to clients. With SSE, the server pushes updates to all connected clients, making it a perfect fit for broadcasting record changes without requiring constant polling from clients.
+  
+## Video demo
+
+https://streamable.com/133m5p
 
