@@ -3,9 +3,15 @@ import { HttpError } from "http-errors";
 import mainRouter from "./routes/main.route";
 import cookieParser from "cookie-parser";
 import { app } from "./lib/socket";
+import cors from "cors";
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000" as string,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true
+}))
 app.use("/api/v1", mainRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
