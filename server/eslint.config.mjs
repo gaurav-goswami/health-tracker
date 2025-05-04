@@ -20,6 +20,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["dist", "node_modules", "eslint.config.mjs", "prisma"],
+    ignores: ["dist", "node_modules", "eslint.config.mjs", "prisma", "docker-compose.yml"],
   }
 );
