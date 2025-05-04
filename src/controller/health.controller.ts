@@ -20,7 +20,7 @@ export class HealthController {
     }
 
     try {
-      await this.findUser(req);
+      const user = await this.findUser(req);
 
       const { name, age, status } = parsedBody.data;
 
@@ -37,6 +37,11 @@ export class HealthController {
       await Queue.publish("health_updates", {
         message: "New record created",
         record,
+        type: "CREATED",
+        createdBy: {
+          email: user.email,
+          id: user.id,
+        },
       });
 
       res.json({ message: "Health record created" });
@@ -56,7 +61,7 @@ export class HealthController {
 
     const { id } = req.params;
     try {
-      await this.findUser(req);
+      const user = await this.findUser(req);
 
       const healthRecord = await prisma.healthRecord.findFirst({
         where: {
@@ -85,7 +90,12 @@ export class HealthController {
       // TODO: send a notification via websocket and show live update via SSE.
       await Queue.publish("health_updates", {
         message: "Record updated",
+        type: "UPDATED",
         record,
+        createdBy: {
+          email: user.email,
+          id: user.id,
+        },
       });
       res.json({
         message: "Health record updated",
@@ -166,6 +176,6 @@ export class HealthController {
       const error = createHttpError(404, "User does not exists");
       throw error;
     }
-    return true;
+    return user;
   }
 }

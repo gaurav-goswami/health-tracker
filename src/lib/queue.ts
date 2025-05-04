@@ -3,6 +3,7 @@
 import amqplib, { ConsumeMessage } from "amqplib";
 import { Channel } from "amqplib";
 import logger from "../config/logger";
+import { io, userSocketMap } from "./socket";
 
 class Queue {
   private static instance: Queue;
@@ -46,8 +47,19 @@ class Queue {
 
       try {
         const data = JSON.parse(message.content.toString());
+        const { type, createdBy }: { type: string; createdBy: { id: string } } = data;
         logger.info(`Received from ${queueName}: ${JSON.stringify(data)}`);
         channel.ack(message);
+
+        // emit event to people in the room
+        for (const [userId, socketId] of userSocketMap.entries()) {
+          if (userId !== createdBy.id) {
+            io.to(socketId).emit("record:information", {
+              type,
+              createdBy,
+            });
+          }
+        }
       } catch (error: any) {
         logger.error(`Failed to process message: ${error}`);
         channel.ack(message);
