@@ -2,8 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { HttpError } from "http-errors";
 import mainRouter from "./routes/main.route";
 import cookieParser from "cookie-parser";
-
-const app = express();
+import { app } from "./lib/socket";
 
 app.use(express.json());
 app.use(cookieParser());
